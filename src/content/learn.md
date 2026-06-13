@@ -15,9 +15,9 @@
 
 ## Private Lessons
 
-- [Jen Barnett](https://rockininrhythm.com/)
-- [Rafal Pustelny](https://www.youshouldbedancing.nyc/rafal-pustelny)
-- [Natasha Shevchenko](https://natashasrhythm.carrd.co)
-- [Yurina Shin](https://www.youshouldbedancing.nyc/yurina-shin)
-- [Sara Sofia](https://www.youshouldbedancing.nyc/sara-rentas)
 - [Bobby White](https://www.youshouldbedancing.nyc/bobby-white)
+- [Jen Barnett](https://rockininrhythm.com/)
+- [Natasha Shevchenko](https://natashasrhythm.carrd.co)
+- [Rafal Pustelny](https://www.youshouldbedancing.nyc/rafal-pustelny)
+- [Sara Sofia](https://www.youshouldbedancing.nyc/sara-rentas)
+- [Yurina Shin](https://www.youshouldbedancing.nyc/yurina-shin)
