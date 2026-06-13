@@ -1,64 +1,127 @@
 ---
-const url = import.meta.env.OFFERINGS_SHEET_URL;
-const res = await fetch(url);
-const text = await res.text();
-
-function parseCSV(raw) {
-  const lines = raw.trim().split('\n');
-  const headers = parseLine(lines[0]);
-  return lines.slice(1).map(line => {
-    const values = parseLine(line);
-    return Object.fromEntries(headers.map((h, i) => [h.trim(), (values[i] ?? '').trim()]));
-  });
-}
-
-function parseLine(line) {
-  const fields = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
-      else { inQuotes = !inQuotes; }
-    } else if (ch === ',' && !inQuotes) {
-      fields.push(current);
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  fields.push(current);
-  return fields;
-}
-
-const rows = parseCSV(text);
-
+import Layout from '../layouts/Layout.astro';
+const SHEET_URL = import.meta.env.OFFERINGS_SHEET_URL;
 const CATEGORY_ORDER = ['Weekly', 'Monthly', 'Big Events', 'Private Lessons'];
-
-const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
-  acc[cat] = rows.filter(r => r.Category === cat);
-  return acc;
-}, {});
 ---
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Offerings — NYC Balboa</title>
-  </head>
-  <body>
-    <h1>NYC Balboa Offerings</h1>
-    {CATEGORY_ORDER.map(cat => grouped[cat].length > 0 && (
-      <section>
-        <h2>{cat}</h2>
-        {grouped[cat].map(item => (
-          <div>
-            <a href={item.Link}>{item.Title}</a>
-            {item.Description && <p>{item.Description}</p>}
-          </div>
-        ))}
-      </section>
-    ))}
-  </body>
-</html>
+<Layout title="Offerings — NYC Balboa">
+  <h1>Offerings</h1>
+  <div id="offerings">Loading...</div>
+
+  <script define:vars={{ SHEET_URL, CATEGORY_ORDER }}>
+    function parseLine(line) {
+      const fields = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+          fields.push(current);
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      fields.push(current);
+      return fields;
+    }
+
+    function parseCSV(raw) {
+      const lines = raw.trim().split('\n');
+      const headers = parseLine(lines[0]);
+      return lines.slice(1).map(line => {
+        const values = parseLine(line);
+        return Object.fromEntries(headers.map((h, i) => [h.trim(), (values[i] ?? '').trim()]));
+      });
+    }
+
+    async function load() {
+      const res = await fetch(SHEET_URL);
+      const text = await res.text();
+      const rows = parseCSV(text);
+
+      const container = document.getElementById('offerings');
+      container.innerHTML = '';
+
+      for (const cat of CATEGORY_ORDER) {
+        const items = rows.filter(r => r.Category === cat);
+        if (!items.length) continue;
+
+        const card = document.createElement('div');
+        card.className = 'category-card';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = cat;
+        card.appendChild(h2);
+
+        const ul = document.createElement('ul');
+        const shuffled = items.slice().sort(() => Math.random() - 0.5);
+        for (const item of shuffled) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = item.Link;
+          a.textContent = item.Title;
+          li.appendChild(a);
+          if (item.Description) {
+            const p = document.createElement('p');
+            p.textContent = item.Description;
+            li.appendChild(p);
+          }
+          ul.appendChild(li);
+        }
+        card.appendChild(ul);
+        container.appendChild(card);
+      }
+    }
+
+    load().catch(() => {
+      document.getElementById('offerings').textContent = 'Failed to load offerings. Please try again later.';
+    });
+  </script>
+
+  <style is:global>
+    #offerings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .category-card {
+      background: #fff9f0;
+      border: 2px solid #8a6a3a;
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .category-card h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.15rem;
+      color: #5a3e1b;
+      margin: 0 0 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #d4c4a0;
+    }
+
+    .category-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .category-card li a {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .category-card li p {
+      color: #5a4a36;
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+  </style>
+</Layout>
