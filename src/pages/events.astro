@@ -19,7 +19,7 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
 
 <script define:vars={{ BASE_URL }}>
   const iframe = document.getElementById('cal');
-  const mode = 'MONTH';
+  const mode = window.innerWidth < 640 ? 'AGENDA' : 'MONTH';
   iframe.src = `${BASE_URL}&mode=${mode}`;
 </script>
 
