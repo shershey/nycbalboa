@@ -2,10 +2,12 @@
 
 A collection of useful links for NYC Balboa dancers.
 
-## Learning
+## Informational
 
-- [Thursday Practice Doc](https://tinyurl.com/nyc-thursday-bal-practice-doc) — resources from the weekly practice session
+- [Swung over](https://swungover.wordpress.com/) - A great blog by Bobby White which discusses Balboa, Swing dancing, and other things.
 
-## History & Inspiration
+## Social Media
 
-- [Balboa beach clip](https://www.youtube.com/watch?v=4uEbgpvxjfY) — archival footage from Balboa Island
+- [NYCBalboa Instagram](https://www.instagram.com/nycbalboa/)
+- Discord - Coming soon.
+- [NYC Balboa Club Facebook Page](https://www.facebook.com/share/g/14idFKKWTvk/)
