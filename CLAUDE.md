@@ -1,0 +1,43 @@
+# NYC Balboa
+
+Community website for the NYC Balboa swing dance scene. Maintained by volunteer organizers; built and extended using Claude Code.
+
+## What this site is
+
+A hub with three parts:
+
+1. **Events calendar** — all NYC Balboa events. Source of truth is a shared Google Calendar so any organizer can add/edit events without touching this repo.
+2. **Offerings directory** — standing list of NYC Balboa classes, dances, and communities (name, type, neighborhood, level, price, link). Source of truth is Airtable or Google Sheets (TBD).
+3. **Subdomain apps** — advanced contributors can run their own apps at `*.nycbalboa.com` via DNS CNAME. These are independent deployments, NOT part of this repo.
+
+## Architecture principle
+
+Content that non-technical organizers edit lives OUTSIDE the code. This site reads from those sources and renders them. **Never hardcode event or offering data into the repo** — always read from the source of truth.
+
+## Stack
+
+- **Framework:** Astro (static-first)
+- **Hosting:** Cloudflare Pages — auto-deploys on push to `main`
+- **Build:** `npm run build`, output dir `dist`
+- **Content sources:** Google Calendar (events), Airtable or Google Sheets (offerings directory)
+- **Domain:** nycbalboa.com (registrar/DNS TBD)
+
+## Conventions
+
+- Secrets (API keys, tokens) go in a gitignored `.env`. Never commit them.
+- Keep the homepage fast and simple — it's the address on flyers and Instagram.
+- **Mobile-first** — most visitors arrive on phones at or before a dance.
+- **Aesthetic:** Balboa is a vintage 1930s–40s swing dance. Warm, classic, and readable — not trendy or neon.
+
+## Build order
+
+1. ✅ Skeleton homepage deploying to Cloudflare Pages
+2. Events page — start with an embedded Google Calendar iframe (no API key needed)
+3. Offerings page — read from directory source, render as cards by neighborhood
+4. Styling pass
+5. *(Later)* Custom-styled calendar via Google Calendar API, payments, subdomains
+
+## Notes
+
+- The Google Calendar API / service-account setup is the fiddliest part of the stack. Stay on the iframe embed until there's a real reason to upgrade.
+- One source of truth per data type: one calendar, one directory.
