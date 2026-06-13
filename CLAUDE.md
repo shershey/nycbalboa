@@ -32,10 +32,17 @@ Content that non-technical organizers edit lives OUTSIDE the code. This site rea
 ## Build order
 
 1. ✅ Skeleton homepage deploying to Cloudflare Pages
-2. Events page — start with an embedded Google Calendar iframe (no API key needed)
-3. Offerings page — read from directory source, render as cards by neighborhood
+2. ✅ Events page — embedded Google Calendar iframe
+3. ✅ Offerings page — Google Sheet as source of truth, client-side fetch, grouped by category
 4. Styling pass
 5. *(Later)* Custom-styled calendar via Google Calendar API, payments, subdomains
+
+## Implemented design decisions
+
+- **Offerings data source:** Google Sheets, published as CSV, fetched client-side at page load (not build time) so updates appear without redeploying. URL is hardcoded (it's public, not a secret).
+- **Offerings layout:** Four category cards (Weekly, Monthly, Big Events, Private Lessons) in a responsive grid. Items within each category are randomized on every page load.
+- **Events calendar:** Google Calendar iframe embed. Month view on desktop (≥640px), Agenda view on mobile (<640px), switches dynamically on resize.
+- **Google Calendar public access:** Calendar must be set to "Make available to public" → "See all event details" (not free/busy) or events won't appear to non-logged-in visitors.
 
 ## Notes
 
