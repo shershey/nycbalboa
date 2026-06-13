@@ -1,0 +1,64 @@
+---
+const url = import.meta.env.OFFERINGS_SHEET_URL;
+const res = await fetch(url);
+const text = await res.text();
+
+function parseCSV(raw) {
+  const lines = raw.trim().split('\n');
+  const headers = parseLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const values = parseLine(line);
+    return Object.fromEntries(headers.map((h, i) => [h.trim(), (values[i] ?? '').trim()]));
+  });
+}
+
+function parseLine(line) {
+  const fields = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      fields.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
+}
+
+const rows = parseCSV(text);
+
+const CATEGORY_ORDER = ['Weekly', 'Monthly', 'Big Events', 'Private Lessons'];
+
+const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
+  acc[cat] = rows.filter(r => r.Category === cat);
+  return acc;
+}, {});
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offerings — NYC Balboa</title>
+  </head>
+  <body>
+    <h1>NYC Balboa Offerings</h1>
+    {CATEGORY_ORDER.map(cat => grouped[cat].length > 0 && (
+      <section>
+        <h2>{cat}</h2>
+        {grouped[cat].map(item => (
+          <div>
+            <a href={item.Link}>{item.Title}</a>
+            {item.Description && <p>{item.Description}</p>}
+          </div>
+        ))}
+      </section>
+    ))}
+  </body>
+</html>

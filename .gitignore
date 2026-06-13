@@ -20,6 +20,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# one-time setup files
+offerings.csv
+
 # macOS
 .DS_Store
 
