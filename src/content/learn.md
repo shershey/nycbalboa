@@ -21,3 +21,10 @@
 - [Rafal Pustelny](https://www.youshouldbedancing.nyc/rafal-pustelny)
 - [Sara Sofia](https://www.youshouldbedancing.nyc/sara-rentas)
 - [Yurina Shin](https://www.youshouldbedancing.nyc/yurina-shin)
+
+## Lindy Hop Studios
+
+- [Midtown Swings](https://www.midtownswings.com/)
+- [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program) — Balboa classes and social dancing
+- [Brooklyn Swings](http://www.brooklynswings.com/)
+- [92nd st Y](https://www.92ny.org/class/swing-dance-beginnerv)
