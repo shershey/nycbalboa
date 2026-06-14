@@ -6,7 +6,7 @@
 
 **Cost:** $5–$10 (whatever you want). Feel free to look around the room and divide the cost of the space by the number of people and pay that. You are welcome to pay more if you feel like it but no pressure.
 
-**Hosts:** Shawn Hershey & Jen Barnett are the default hosts but we both travel a lot so will find replacements when we travel. Let us know if you're interested in hosting.
+**Hosts:** Shawn & Jen are the default hosts but we both travel a lot so will find replacements when we travel. Let us know if you're interested in hosting.
 
 ---
 
@@ -14,17 +14,7 @@
 
 We wanted to create a regular weekly space for folks to get together to practice Balboa that is on the earlier side.
 
-NYC already has a few great resources for Balboa that you should take advantage of:
-
-- [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program) has several great teachers teaching Balboa on Tuesdays. You should take their classes and consider taking private lessons with them. Private lessons are an amazing way to learn.
-  - [Bobby White](https://www.youshouldbedancing.nyc/bobby-white)
-  - [Sara Sofia](https://www.youshouldbedancing.nyc/sara-rentas)
-  - [Yurina Shin](https://www.youshouldbedancing.nyc/yurina-shin)
-  - [Rafal Pustelny](https://www.youshouldbedancing.nyc/rafal-pustelny)
-- Other Balboa private lesson teachers:
-  - [Jen Barnett](https://rockininrhythm.com/)
-- [White Heat](https://www.facebook.com/WhiteHeatNYC/) — a monthly social dance. The last Tuesday night of the month at You Should Be Dancing from 9:30pm–12:00am. Live music!
-- You Should Be Dancing has a practice session every third Tuesday at 9:30pm after classes.
+NYC already has a few great resources for Balboa that you should take advantage of. Check out the [learn](https://nycbalboa.com/offerings/) and [calendar](https://nycbalboa.com/events/) pages.
 
 ---
 
