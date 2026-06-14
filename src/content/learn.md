@@ -2,7 +2,7 @@
 
 ## Weekly
 
-- [Thursday Practice](https://tinyurl.com/nyc-thursday-bal-practice-doc) — Weekly drop-in Balboa practice session
+- [Thursday Practice](https://thursdaypractice.nycbalboa.com) — Weekly drop-in Balboa practice session
 - [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program) — Balboa classes and social dancing
 
 ## Monthly
