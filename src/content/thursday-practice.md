@@ -20,7 +20,7 @@ NYC already has a few great resources for Balboa that you should take advantage 
 
 ## Structure
 
-When both Jen Barnett and Shawn Hershey are in town the current plan is as follows:
+When both Jen and Shawn are in town the current plan is as follows:
 
 1. **First hour** — Jen & Shawn (and/or other cohosts) will be practicing their own material and everyone else is welcome to use the space how they want.
 2. **Second hour** — Jen & Shawn (and/or other cohosts) will be available to help folks out.
@@ -44,13 +44,5 @@ If you have any feedback, feel free to submit with your email or anonymously:
 
 [Feedback form](https://forms.gle/R2Depsnmqb6Dr6if6)
 
-Or talk to Shawn Hershey or Jen Barnett.
+Or talk to Shawn or Jen
 
----
-
-## Other Links
-
-- [NYC Balboa Club Facebook Group](https://www.facebook.com/groups/280078787265)
-- [Bal Crash Update Group](https://www.messenger.com/t/1052687903401149)
-- [Previous Fix Your Shit Facebook Event](https://www.facebook.com/events/805389218542106/)
-- [Full practice doc](https://tinyurl.com/nyc-thursday-bal-practice-doc)
