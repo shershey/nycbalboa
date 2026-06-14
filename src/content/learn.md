@@ -25,6 +25,6 @@
 ## Lindy Hop Studios
 
 - [Midtown Swings](https://www.midtownswings.com/)
-- [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program) — Balboa classes and social dancing
+- [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program)
 - [Brooklyn Swings](http://www.brooklynswings.com/)
 - [92nd st Y](https://www.92ny.org/class/swing-dance-beginnerv)
