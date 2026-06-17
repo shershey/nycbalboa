@@ -9,5 +9,5 @@ A collection of useful links for NYC Balboa dancers.
 ## Social Media
 
 - [NYCBalboa Instagram](https://www.instagram.com/nycbalboa/)
-- Discord - Coming soon.
+- [Discord](https://discord.com/channels/1511705637954785340/1511705638571479203)
 - [NYC Balboa Club Facebook Page](https://www.facebook.com/share/g/14idFKKWTvk/)
