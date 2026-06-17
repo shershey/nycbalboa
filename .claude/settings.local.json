@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(brew list *)",
+      "Read(//opt/homebrew/Cellar/node/20.2.0/bin/**)",
+      "Bash(/opt/homebrew/opt/node/bin/node --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(gh issue create --repo shershey/nycbalboa --title 'Events page: embed Google Calendar iframe' --body 'Add an events page at /events that embeds the shared NYC Balboa Google Calendar via iframe. *)",
+      "Bash(gh issue create --repo shershey/nycbalboa --title 'Offerings page: directory cards by neighborhood' --body 'Add an offerings page at /offerings that reads from the source of truth \\(Airtable or Google Sheets — TBD\\) and renders as cards grouped by neighborhood. *)",
+      "Bash(gh issue create --repo shershey/nycbalboa --title 'Styling pass: warm vintage aesthetic' --body 'Apply cohesive styling across all pages. *)",
+      "Bash(gh issue create --repo shershey/nycbalboa --title 'Connect nycbalboa.com custom domain in Cloudflare Pages' --body 'Once DNS propagates \\(nameservers switched from Porkbun to Cloudflare\\): *)"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-# Dance
+# Socials
 
 This page lists the regularly recurring events. Visit the [calendar](events) page for a calendar view of these events and additional one off events.
 
