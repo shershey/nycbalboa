@@ -1,9 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Content } from '../content/events.md';
 const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e8bdc5d22fa803d7237b5d8ad34696729ca076f27f7c36881d%40group.calendar.google.com&ctz=America%2FNew_York';
 ---
 <Layout title="Events — NYC Balboa">
   <h1>Events</h1>
+  <div class="intro">
+    <Content />
+  </div>
   <div class="calendar-wrap">
     <iframe
       id="cal"
@@ -28,6 +32,12 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
   updateMode();
   window.addEventListener('resize', updateMode);
 </script>
+
+<style>
+  .intro {
+    margin-bottom: 1.5rem;
+  }
+</style>
 
 <style is:global>
   .calendar-wrap {
