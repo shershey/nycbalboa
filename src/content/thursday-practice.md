@@ -14,7 +14,7 @@
 
 We wanted to create a regular weekly space for folks to get together to practice Balboa that is on the earlier side.
 
-NYC already has a few great resources for Balboa that you should take advantage of. Check out the [learn](https://nycbalboa.com/offerings/) and [calendar](https://nycbalboa.com/events/) pages.
+NYC already has a few great resources for Balboa that you should take advantage of. Check out the [learn](https://nycbalboa.com/learn/) and [calendar](https://nycbalboa.com/calendar/) pages.
 
 ---
 
