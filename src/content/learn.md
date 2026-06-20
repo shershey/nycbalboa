@@ -18,6 +18,7 @@ New to Balboa? Check out the [Begin](/begin) page for tips on how to get started
 - [Natasha Shevchenko](https://natashasrhythm.carrd.co)
 - [Rafal Pustelny](https://www.youshouldbedancing.nyc/rafal-pustelny)
 - [Sara Sofia](https://www.youshouldbedancing.nyc/sara-rentas)
+- [Shawn Hershey](https://shawnhershey.com)
 - [Yurina Shin](https://www.youshouldbedancing.nyc/yurina-shin)
 
 ## Lindy Hop Studios
