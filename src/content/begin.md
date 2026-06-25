@@ -1,5 +1,7 @@
 # Begin
-
+body {
+    font-family: Georgia, serif;
+}
 New to Balboa in NYC? Here are a few ways to get started:
 
 1. **You Should Be Dancing Crash Courses**: There is currently one scheduled for [July 11 and 12, 2026](https://www.facebook.com/share/14jn2ckvSZS/)
