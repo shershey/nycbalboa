@@ -1,4 +1,3 @@
-
 # Begin
 
 New to Balboa in NYC? Here are a few ways to get started:
