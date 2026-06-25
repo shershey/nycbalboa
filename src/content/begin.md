@@ -1,5 +1,3 @@
-body {
-    font-family: Georgia, serif;
 
 # Begin
 
@@ -11,4 +9,3 @@ New to Balboa in NYC? Here are a few ways to get started:
 3. **Practice Session**: If you're an experienced social dancer or know a little Balboa, the [Thursday Practice](https://thursdaypractice.nycbalboa.com) could be an interesting and less structured way to learn. From 7:30–8:30, other dancers might be available to help show you some of the basics. From 8:30–9:30 the hosts are available to help anyone with questions.
 
 If you are not a Balboa beginner, the YSBD intermediate and advanced classes are great — check them out! See the [Learn](/learn) page for more options.
-}
