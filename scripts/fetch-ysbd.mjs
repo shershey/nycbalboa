@@ -134,6 +134,9 @@ function parseSessions(html) {
       const staff = (block.match(/class="bw-session__staff"[^>]*>([\s\S]*?)<\/div>/) || [])[1];
       const mboClass = (block.match(/data-bw-widget-mbo-class="([^"]+)"/) || [])[1];
       const sessionId = (block.match(/id="(\d+)"/) || [])[1];
+      // Direct "Register" deep link to MindBody for this class on this date.
+      const reg = (block.match(/class="[^"]*signup_now[^"]*"[^>]*href="([^"]+)"/) || [])[1];
+      const registerUrl = reg ? reg.replace(/&amp;/g, '&') : null;
       // Real cancellation = a modifier on the container, NOT the always-present
       // hidden child <div class="bw-session__canceled">Cancelled</div>.
       const cancelled = /bw-session--cancel/i.test(containerClass);
@@ -149,6 +152,7 @@ function parseSessions(html) {
         cancelled,
         mboClassId: mboClass || null,
         sessionId: sessionId || null,
+        registerUrl,
       });
     }
   }
