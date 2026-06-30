@@ -2,11 +2,11 @@
 // ─────────────────────────────────────────────────────────────────────────
 // YSBD Balboa class scraper (prototype — read-only, no credentials).
 //
-// Fetches the next 8 weeks of classes from You Should Be Dancing's MindBody
+// Fetches the next 12 weeks of classes from You Should Be Dancing's MindBody
 // schedule widget, filters to Balboa classes, and prints them as JSON.
 //
 // Usage:
-//   node scripts/fetch-ysbd.mjs            # Balboa classes, next 8 weeks, as JSON
+//   node scripts/fetch-ysbd.mjs            # Balboa classes, next 12 weeks, as JSON
 //   node scripts/fetch-ysbd.mjs --all      # all classes (not just Balboa)
 //   node scripts/fetch-ysbd.mjs --weeks 4  # change the number of weeks
 //
@@ -27,7 +27,7 @@ const args = process.argv.slice(2);
 const ALL = args.includes('--all');
 const WEEKS = (() => {
   const i = args.indexOf('--weeks');
-  return i !== -1 && args[i + 1] ? parseInt(args[i + 1], 10) : 8;
+  return i !== -1 && args[i + 1] ? parseInt(args[i + 1], 10) : 12;
 })();
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
