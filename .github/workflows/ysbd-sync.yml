@@ -30,6 +30,6 @@ jobs:
       - name: Sync YSBD classes
         env:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-          CALENDAR_ID: ${{ secrets.YSBD_CALENDAR_ID }}
+          CALENDAR_ID: ${{ secrets.CALENDAR_ID }}
         run: |
           node scripts/sync-calendar.mjs ${{ (vars.YSBD_SYNC_APPLY == 'true' || inputs.apply) && '--apply' || '' }}
