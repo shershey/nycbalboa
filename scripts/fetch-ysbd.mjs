@@ -15,7 +15,11 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 const WIDGET_ID = '175532';
-const ENDPOINT = `https://widgets.mindbodyonline.com/widgets/schedules/${WIDGET_ID}/load_markup.json`;
+// IMPORTANT: use the JSONP endpoint (/load_markup, no `.json`) that YSBD's own
+// widget calls. The `.json` twin intermittently returns HTTP 500 for far-out
+// weeks; the JSONP endpoint serves the same data reliably. Response is wrapped
+// as `callback({...json...});` — we strip the wrapper below.
+const ENDPOINT = `https://widgets.mindbodyonline.com/widgets/schedules/${WIDGET_ID}/load_markup`;
 const REFERER = 'https://www.youshouldbedancing.nyc/';
 const DELAY_MS = 1000; // be polite: ~1s between weekly calls
 
@@ -40,23 +44,36 @@ function weekStartDates(weeks) {
   return out;
 }
 
+// Unwrap a JSONP response: `jQuery_cb({...json...});` → the JSON inside.
+function unwrapJsonp(body) {
+  const open = body.indexOf('(');
+  const close = body.lastIndexOf(')');
+  if (open === -1 || close === -1 || close < open) throw new Error('not JSONP');
+  return JSON.parse(body.slice(open + 1, close));
+}
+
 async function fetchWeek(startDate, attempts = 4) {
   // NOTE: params MUST be nested as options[...] — top-level start_date returns empty.
-  const url = `${ENDPOINT}?options[start_date]=${startDate}&options[location]=`;
-  // MindBody's endpoint intermittently returns 500 even for valid published
-  // weeks, so retry with backoff before giving up.
+  // Uses the JSONP endpoint YSBD's own widget calls (see ENDPOINT note above);
+  // `callback` names the wrapper fn, `_` is a cache-buster.
+  const url =
+    `${ENDPOINT}?callback=cb&options[start_date]=${startDate}&options[location]=` +
+    `&widget_partner=object&widget_version=1&_=${startDate.replace(/-/g, '')}`;
+  // Keep a short retry as defense-in-depth, though this endpoint is reliable.
   let lastErr;
   for (let a = 1; a <= attempts; a++) {
     try {
       const res = await fetch(url, {
         headers: {
-          'User-Agent': 'nycbalboa-calendar-sync (https://nycbalboa.com)',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
+          Accept: '*/*',
           Referer: REFERER,
-          'X-Requested-With': 'XMLHttpRequest',
+          Origin: 'https://www.youshouldbedancing.nyc',
         },
       });
       if (res.ok) {
-        const json = await res.json();
+        const json = unwrapJsonp(await res.text());
         return json.class_sessions || '';
       }
       lastErr = new Error(`HTTP ${res.status}`);
