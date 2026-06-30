@@ -40,22 +40,32 @@ function weekStartDates(weeks) {
   return out;
 }
 
-async function fetchWeek(startDate) {
+async function fetchWeek(startDate, attempts = 4) {
   // NOTE: params MUST be nested as options[...] — top-level start_date returns empty.
   const url = `${ENDPOINT}?options[start_date]=${startDate}&options[location]=`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'nycbalboa-calendar-sync (https://nycbalboa.com)',
-      Referer: REFERER,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-  });
-  // MindBody returns 500 for weeks beyond the currently-published schedule.
-  // Treat that as "not published yet" (empty), not a hard failure.
-  if (res.status === 500) return { html: '', unpublished: true };
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  return { html: json.class_sessions || '', unpublished: false };
+  // MindBody's endpoint intermittently returns 500 even for valid published
+  // weeks, so retry with backoff before giving up.
+  let lastErr;
+  for (let a = 1; a <= attempts; a++) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'nycbalboa-calendar-sync (https://nycbalboa.com)',
+          Referer: REFERER,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.class_sessions || '';
+      }
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      lastErr = err;
+    }
+    if (a < attempts) await sleep(800 * a);
+  }
+  throw lastErr;
 }
 
 // strip tags → collapsed text
@@ -79,9 +89,19 @@ function parseSessions(html) {
     if (!dateMatch) continue;
     const date = dateMatch[1];
 
-    // Per-session substrings.
-    const blocks = chunk.split('<div class="bw-session"').slice(1);
-    for (const block of blocks) {
+    // Find each session CONTAINER: class="bw-session" optionally with modifiers
+    // (e.g. "bw-session bw-session--canceled"). The trailing space/quote keeps
+    // this from matching child elements like "bw-session__name".
+    const starts = [...chunk.matchAll(/<div class="(bw-session(?: [^"]*)?)"/g)];
+    for (let i = 0; i < starts.length; i++) {
+      const containerClass = starts[i][1];
+      const from = starts[i].index;
+      const to = i + 1 < starts.length ? starts[i + 1].index : chunk.length;
+      const block = chunk.slice(from, to);
+
+      // Skip empty placeholder rows.
+      if (/bw-session--empty/.test(containerClass)) continue;
+
       const start = block.match(/class="hc_starttime"\s+datetime="([^"]+)"/);
       const end = block.match(/class="hc_endtime"\s+datetime="([^"]+)"/);
 
@@ -96,8 +116,10 @@ function parseSessions(html) {
       const level = (block.match(/class="bw-session__level"[^>]*>([\s\S]*?)<\/div>/) || [])[1];
       const staff = (block.match(/class="bw-session__staff"[^>]*>([\s\S]*?)<\/div>/) || [])[1];
       const mboClass = (block.match(/data-bw-widget-mbo-class="([^"]+)"/) || [])[1];
-      const sessionId = (block.match(/^[^>]*id="(\d+)"/) || [])[1];
-      const cancelled = /bw-session__canceled/.test(block) || /Cancelled/i.test(block.slice(0, 600));
+      const sessionId = (block.match(/id="(\d+)"/) || [])[1];
+      // Real cancellation = a modifier on the container, NOT the always-present
+      // hidden child <div class="bw-session__canceled">Cancelled</div>.
+      const cancelled = /bw-session--cancel/i.test(containerClass);
 
       if (!name) continue;
       sessions.push({
@@ -122,16 +144,12 @@ async function main() {
   for (const [i, d] of dates.entries()) {
     process.stderr.write(`Fetching week ${i + 1}/${dates.length} (start ${d})… `);
     try {
-      const { html, unpublished } = await fetchWeek(d);
-      if (unpublished) {
-        process.stderr.write('not published yet\n');
-      } else {
-        const found = parseSessions(html);
-        all.push(...found);
-        process.stderr.write(`${found.length} classes\n`);
-      }
+      const html = await fetchWeek(d);
+      const found = parseSessions(html);
+      all.push(...found);
+      process.stderr.write(`${found.length} classes\n`);
     } catch (err) {
-      process.stderr.write(`error: ${err.message}\n`);
+      process.stderr.write(`failed after retries: ${err.message}\n`);
     }
     if (i < dates.length - 1) await sleep(DELAY_MS);
   }
