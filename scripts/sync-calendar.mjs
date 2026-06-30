@@ -97,6 +97,53 @@ function buildEvent(cls) {
   return event;
 }
 
+// ── hand-entered duplicate detection ────────────────────────────────────────
+
+// Normalize a title for fuzzy comparison: lowercase, drop common category
+// prefixes ("Balboa Workshop:", "Balboa - "), strip punctuation, collapse space.
+function normalizeName(s) {
+  return (s || '')
+    .toLowerCase()
+    .replace(/balboa\s+workshop\s*:?/g, ' ')
+    .replace(/\bbalboa\b/g, ' ')
+    .replace(/swing\s+party|dance\s+party|workshop|class(es)?/g, ' ')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function nameSimilar(a, b) {
+  const na = normalizeName(a);
+  const nb = normalizeName(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  if (na.length >= 8 && (na.includes(nb) || nb.includes(na))) return true; // one contains the other
+  const A = new Set(na.split(' ').filter(Boolean));
+  const B = new Set(nb.split(' ').filter(Boolean));
+  const inter = [...A].filter((t) => B.has(t)).length;
+  const union = new Set([...A, ...B]).size;
+  return union > 0 && inter / union >= 0.6; // token overlap
+}
+
+const eventLocalDate = (s) => (s?.dateTime || s?.date || '').slice(0, 10);
+function eventMinutes(s) {
+  const t = (s?.dateTime || '').slice(11, 16);
+  if (!t) return null; // all-day event → no time
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// True if our built event and a hand-entered event are plausibly the same thing:
+// same date, start within 90 min (or the human's is all-day), and similar names.
+function sameEventByContent(ours, hand) {
+  if (eventLocalDate(ours.start) !== eventLocalDate(hand.start)) return false;
+  const om = eventMinutes(ours.start);
+  const hm = eventMinutes(hand.start);
+  const timeOk = hm === null || om === null || Math.abs(om - hm) <= 90;
+  if (!timeOk) return false;
+  return nameSimilar(ours.summary, hand.summary);
+}
+
 // ── main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -165,23 +212,44 @@ async function main() {
   const timeMin = `${addDays(sortedDates[0], -1)}T00:00:00Z`;
   const timeMax = `${addDays(sortedDates[sortedDates.length - 1], 2)}T00:00:00Z`;
 
-  const existing = new Map();
+  // Fetch ALL events in the window, then split into ours (ysbd-sync tagged) and
+  // hand-entered (everything else). We need the hand-entered ones to avoid
+  // creating a duplicate of an event an organizer already added by hand.
+  const existing = new Map(); // our ysbd-sync events, by id
+  const handEntered = []; // events created by humans / other sources
   let pageToken;
   do {
     const res = await calendar.events.list({
       calendarId,
-      privateExtendedProperty: `source=${SOURCE_TAG}`,
       timeMin,
       timeMax,
       singleEvents: true,
       maxResults: 250,
       pageToken,
     });
-    for (const ev of res.data.items || []) existing.set(ev.id, ev);
+    for (const ev of res.data.items || []) {
+      if (ev.status === 'cancelled') continue;
+      if (ev.extendedProperties?.private?.source === SOURCE_TAG) existing.set(ev.id, ev);
+      else handEntered.push(ev);
+    }
     pageToken = res.data.nextPageToken;
   } while (pageToken);
 
-  // 4. Reconcile.
+  // 4. Skip anything an organizer already hand-entered. If a hand-entered event
+  //    matches one of ours (same date, close start time, similar name), drop it
+  //    from the desired set: we won't create a duplicate, and if we'd previously
+  //    synced our own copy, the delete pass below removes it — leaving the
+  //    human's version as the single source. We never modify their event.
+  const skipped = [];
+  for (const [id, ev] of [...desired]) {
+    const match = handEntered.find((h) => sameEventByContent(ev, h));
+    if (match) {
+      desired.delete(id);
+      skipped.push({ ev, by: match.creator?.email || 'someone' });
+    }
+  }
+
+  // 5. Reconcile.
   const toInsert = [];
   const toUpdate = [];
   for (const [id, ev] of desired) {
@@ -197,7 +265,7 @@ async function main() {
     if (coveredDates.has(localDate)) toDelete.push(ev); // disappeared or cancelled
   }
 
-  // 5. Report + (optionally) apply.
+  // 6. Report + (optionally) apply.
   const label = (ev) => `${(ev.start?.dateTime || '').slice(0, 16)}  ${ev.summary}`;
   console.error(`\n${APPLY ? 'APPLYING' : 'DRY RUN'} — planned changes:`);
   console.error(`  create: ${toInsert.length}`);
@@ -206,6 +274,8 @@ async function main() {
   toUpdate.forEach((e) => console.error(`    ~ ${label(e)}`));
   console.error(`  delete: ${toDelete.length}`);
   toDelete.forEach((e) => console.error(`    - ${label(e)}`));
+  console.error(`  skip (hand-entered already exists): ${skipped.length}`);
+  skipped.forEach((s) => console.error(`    = ${label(s.ev)}  (kept ${s.by}'s)`));
 
   if (!APPLY) {
     console.error('\nDry run — no changes written. Re-run with --apply to commit.');
