@@ -23,13 +23,6 @@ const ENDPOINT = `https://widgets.mindbodyonline.com/widgets/schedules/${WIDGET_
 const REFERER = 'https://www.youshouldbedancing.nyc/';
 const DELAY_MS = 1000; // be polite: ~1s between weekly calls
 
-const args = process.argv.slice(2);
-const ALL = args.includes('--all');
-const WEEKS = (() => {
-  const i = args.indexOf('--weeks');
-  return i !== -1 && args[i + 1] ? parseInt(args[i + 1], 10) : 12;
-})();
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Each call returns a 7-day week starting at start_date, so step by 7 days.
@@ -159,36 +152,65 @@ function parseSessions(html) {
   return sessions;
 }
 
-async function main() {
-  const dates = weekStartDates(WEEKS);
-  const all = [];
+// Scrape `weeks` weeks of classes. Returns both the parsed classes AND the
+// per-week fetch status — the latter matters for the calendar sync, which must
+// only ever delete events inside weeks it actually saw. A week that failed to
+// fetch (ok:false) is "unknown", never "empty": the sync leaves it untouched.
+export async function scrape({ weeks = 12, all = false, onProgress } = {}) {
+  const dates = weekStartDates(weeks);
+  const weekStatus = [];
+  const collected = [];
   for (const [i, d] of dates.entries()) {
-    process.stderr.write(`Fetching week ${i + 1}/${dates.length} (start ${d})… `);
+    let status = { start: d, ok: false, count: 0 };
     try {
       const html = await fetchWeek(d);
       const found = parseSessions(html);
-      all.push(...found);
-      process.stderr.write(`${found.length} classes\n`);
+      collected.push(...found);
+      status = { start: d, ok: true, count: found.length };
     } catch (err) {
-      process.stderr.write(`failed after retries: ${err.message}\n`);
+      status.error = err.message;
     }
+    weekStatus.push(status);
+    if (onProgress) onProgress(i + 1, dates.length, status);
     if (i < dates.length - 1) await sleep(DELAY_MS);
   }
 
   // Dedupe by sessionId (defensive; weeks shouldn't overlap).
   const seen = new Set();
-  let results = all.filter((s) => {
+  let classes = collected.filter((s) => {
     const key = s.sessionId || `${s.date}|${s.start}|${s.name}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
-  if (!ALL) results = results.filter((s) => /balboa/i.test(s.name));
-  results.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+  if (!all) classes = classes.filter((s) => /balboa/i.test(s.name));
+  classes.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
-  process.stderr.write(`\nFound ${results.length} ${ALL ? '' : 'Balboa '}classes across ${WEEKS} weeks.\n`);
-  console.log(JSON.stringify(results, null, 2));
+  return { classes, weeks: weekStatus };
 }
 
-main();
+async function main() {
+  const args = process.argv.slice(2);
+  const all = args.includes('--all');
+  const wi = args.indexOf('--weeks');
+  const weeks = wi !== -1 && args[wi + 1] ? parseInt(args[wi + 1], 10) : 12;
+
+  const { classes } = await scrape({
+    weeks,
+    all,
+    onProgress: (n, total, s) =>
+      process.stderr.write(
+        `Fetching week ${n}/${total} (start ${s.start})… ` +
+          (s.ok ? `${s.count} classes\n` : `failed after retries: ${s.error}\n`)
+      ),
+  });
+
+  process.stderr.write(`\nFound ${classes.length} ${all ? '' : 'Balboa '}classes across ${weeks} weeks.\n`);
+  console.log(JSON.stringify(classes, null, 2));
+}
+
+// Run the CLI only when invoked directly (not when imported by the sync script).
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}

@@ -1,0 +1,35 @@
+name: Sync YSBD classes to calendar
+
+# Scrapes YSBD Balboa classes daily and reconciles them into the Google
+# Calendar. See scripts/sync-calendar.mjs and GitHub issue #17.
+#
+# GO-LIVE SWITCH: runs are DRY-RUN until the repo variable YSBD_SYNC_APPLY is
+# set to 'true' (Settings → Secrets and variables → Actions → Variables). This
+# lets you watch a few scheduled dry runs before anything writes to the calendar.
+
+on:
+  schedule:
+    - cron: '0 11 * * *' # 11:00 UTC daily ≈ 6–7 AM New York
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Write to the calendar (otherwise dry-run)'
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install script deps
+        run: npm install --prefix scripts
+      - name: Sync YSBD classes
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          CALENDAR_ID: ${{ secrets.YSBD_CALENDAR_ID }}
+        run: |
+          node scripts/sync-calendar.mjs ${{ (vars.YSBD_SYNC_APPLY == 'true' || inputs.apply) && '--apply' || '' }}

@@ -1,0 +1,9 @@
+{
+  "name": "nycbalboa-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Build-time helper scripts (YSBD scraper + calendar sync). Kept separate from the Astro site so these deps never touch the Cloudflare site build.",
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}
