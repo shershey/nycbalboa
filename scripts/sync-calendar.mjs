@@ -64,14 +64,16 @@ function eventId(cls) {
 // whether an existing event needs updating without comparing date formats.
 function contentHash(cls) {
   return sha(
-    [cls.name, cls.start, cls.end, cls.level, cls.instructor, cls.registerUrl].join('|')
+    [cls.name, cls.start, cls.end, cls.type, cls.level, cls.instructor, cls.description, cls.registerUrl].join('|')
   ).slice(0, 16);
 }
 
 function buildEvent(cls) {
   const descLines = [];
-  if (cls.level) descLines.push(`Level: ${cls.level}`);
+  if (cls.type) descLines.push(cls.type); // e.g. "Swing Party", "Balboa"
+  if (cls.kind === 'class' && cls.level) descLines.push(`Level: ${cls.level}`);
   if (cls.instructor) descLines.push(`Instructor: ${cls.instructor}`);
+  if (cls.description) descLines.push('', cls.description.slice(0, 700));
   if (cls.registerUrl) descLines.push('', `Register: ${cls.registerUrl}`);
   descLines.push('', 'Auto-synced from You Should Be Dancing (youshouldbedancing.nyc).');
 

@@ -1,27 +1,37 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────
-// YSBD Balboa class scraper (prototype — read-only, no credentials).
+// YSBD Balboa scraper (read-only, no credentials).
 //
-// Fetches the next 12 weeks of classes from You Should Be Dancing's MindBody
-// schedule widget, filters to Balboa classes, and prints them as JSON.
+// Fetches the next 12 weeks from You Should Be Dancing's three MindBody
+// schedule widgets — group classes, workshops, and dance parties — and keeps
+// anything that mentions "balboa" anywhere in its name OR description. (So a
+// "Swing Party" whose blurb talks about Balboa is kept; a Tango night isn't.)
+// Prints the result as JSON.
 //
 // Usage:
-//   node scripts/fetch-ysbd.mjs            # Balboa classes, next 12 weeks, as JSON
-//   node scripts/fetch-ysbd.mjs --all      # all classes (not just Balboa)
+//   node scripts/fetch-ysbd.mjs            # Balboa events, next 12 weeks, as JSON
+//   node scripts/fetch-ysbd.mjs --all      # everything (no balboa filter)
 //   node scripts/fetch-ysbd.mjs --weeks 4  # change the number of weeks
 //
-// See GitHub issue #17 for the full plan (next step: write these into the
-// Google Calendar from a daily GitHub Actions job).
+// See GitHub issue #17 for the full plan.
 // ─────────────────────────────────────────────────────────────────────────
 
-const WIDGET_ID = '175532';
+// The three YSBD schedule widgets. The numeric id decodes from the page's
+// healcode hash `a3<id>6ad9` (e.g. classes a31755326ad9 → 175532).
+const WIDGETS = [
+  { id: '175532', kind: 'class' }, // /group-classes
+  { id: '215147', kind: 'workshop' }, // /workshops
+  { id: '176833', kind: 'party' }, // /dance-parties-1
+];
+
 // IMPORTANT: use the JSONP endpoint (/load_markup, no `.json`) that YSBD's own
 // widget calls. The `.json` twin intermittently returns HTTP 500 for far-out
 // weeks; the JSONP endpoint serves the same data reliably. Response is wrapped
 // as `callback({...json...});` — we strip the wrapper below.
-const ENDPOINT = `https://widgets.mindbodyonline.com/widgets/schedules/${WIDGET_ID}/load_markup`;
+const endpoint = (widgetId) =>
+  `https://widgets.mindbodyonline.com/widgets/schedules/${widgetId}/load_markup`;
 const REFERER = 'https://www.youshouldbedancing.nyc/';
-const DELAY_MS = 1000; // be polite: ~1s between weekly calls
+const DELAY_MS = 700; // be polite between calls
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,7 +47,7 @@ function weekStartDates(weeks) {
   return out;
 }
 
-// Unwrap a JSONP response: `jQuery_cb({...json...});` → the JSON inside.
+// Unwrap a JSONP response: `cb({...json...});` → the JSON inside.
 function unwrapJsonp(body) {
   const open = body.indexOf('(');
   const close = body.lastIndexOf(')');
@@ -45,14 +55,11 @@ function unwrapJsonp(body) {
   return JSON.parse(body.slice(open + 1, close));
 }
 
-async function fetchWeek(startDate, attempts = 4) {
+async function fetchWeek(widgetId, startDate, attempts = 4) {
   // NOTE: params MUST be nested as options[...] — top-level start_date returns empty.
-  // Uses the JSONP endpoint YSBD's own widget calls (see ENDPOINT note above);
-  // `callback` names the wrapper fn, `_` is a cache-buster.
   const url =
-    `${ENDPOINT}?callback=cb&options[start_date]=${startDate}&options[location]=` +
+    `${endpoint(widgetId)}?callback=cb&options[start_date]=${startDate}&options[location]=` +
     `&widget_partner=object&widget_version=1&_=${startDate.replace(/-/g, '')}`;
-  // Keep a short retry as defense-in-depth, though this endpoint is reliable.
   let lastErr;
   for (let a = 1; a <= attempts; a++) {
     try {
@@ -90,7 +97,7 @@ function text(html) {
     .trim();
 }
 
-function parseSessions(html) {
+function parseSessions(html, kind) {
   const sessions = [];
   // Split into per-day chunks; each has a date- class and its sessions.
   const dayChunks = html.split('<div class="bw-widget__day">').slice(1);
@@ -117,17 +124,24 @@ function parseSessions(html) {
 
       const nameBlock = block.match(/class="bw-session__name">([\s\S]*?)<\/div>/);
       let name = '';
+      let type = null;
       if (nameBlock) {
-        // remove the hidden "bw-session__type" prefix span, then strip tags
-        const cleaned = nameBlock[1].replace(/<span class="bw-session__type"[\s\S]*?<\/span>/, '');
-        name = text(cleaned);
+        // The hidden "bw-session__type" prefix span holds the category
+        // ("Balboa - ", "Swing Party - ", …). Capture it, then strip it.
+        const typeSpan = nameBlock[1].match(/<span class="bw-session__type"[^>]*>([\s\S]*?)<\/span>/);
+        if (typeSpan) type = text(typeSpan[1]).replace(/\s*-\s*$/, '') || null;
+        name = text(nameBlock[1].replace(/<span class="bw-session__type"[\s\S]*?<\/span>/, ''));
       }
 
       const level = (block.match(/class="bw-session__level"[^>]*>([\s\S]*?)<\/div>/) || [])[1];
       const staff = (block.match(/class="bw-session__staff"[^>]*>([\s\S]*?)<\/div>/) || [])[1];
+      // Description lives in the expanded details; it can contain nested divs,
+      // so capture greedily from its open tag to the end of the session block.
+      const descMatch = block.match(/class="bw-session__description"[^>]*>([\s\S]*)/);
+      const description = descMatch ? text(descMatch[1]) || null : null;
       const mboClass = (block.match(/data-bw-widget-mbo-class="([^"]+)"/) || [])[1];
       const sessionId = (block.match(/id="(\d+)"/) || [])[1];
-      // Direct "Register" deep link to MindBody for this class on this date.
+      // Direct "Register" deep link to MindBody for this item on this date.
       const reg = (block.match(/class="[^"]*signup_now[^"]*"[^>]*href="([^"]+)"/) || [])[1];
       const registerUrl = reg ? reg.replace(/&amp;/g, '&') : null;
       // Real cancellation = a modifier on the container, NOT the always-present
@@ -140,8 +154,11 @@ function parseSessions(html) {
         start: start ? start[1] : null, // e.g. "2026-07-07T19:30" (America/New_York local)
         end: end ? end[1] : null,
         name,
+        kind, // class | workshop | party
+        type, // YSBD category label, e.g. "Swing Party"
         level: level ? text(level) : null,
         instructor: staff ? text(staff) : null,
+        description,
         cancelled,
         mboClassId: mboClass || null,
         sessionId: sessionId || null,
@@ -152,30 +169,38 @@ function parseSessions(html) {
   return sessions;
 }
 
-// Scrape `weeks` weeks of classes. Returns both the parsed classes AND the
-// per-week fetch status — the latter matters for the calendar sync, which must
-// only ever delete events inside weeks it actually saw. A week that failed to
-// fetch (ok:false) is "unknown", never "empty": the sync leaves it untouched.
+// Keep events whose name OR description mentions balboa.
+const mentionsBalboa = (s) => /balboa/i.test(`${s.name} ${s.type || ''} ${s.description || ''}`);
+
+// Scrape `weeks` weeks across all three widgets. Returns the parsed events AND
+// the per-week fetch status. A week is only marked ok (and thus eligible for
+// deletions in the calendar sync) if EVERY widget fetched successfully — a
+// partial week is "unknown", never "empty", so the sync never wrongly deletes.
 export async function scrape({ weeks = 12, all = false, onProgress } = {}) {
   const dates = weekStartDates(weeks);
   const weekStatus = [];
   const collected = [];
   for (const [i, d] of dates.entries()) {
-    let status = { start: d, ok: false, count: 0 };
-    try {
-      const html = await fetchWeek(d);
-      const found = parseSessions(html);
-      collected.push(...found);
-      status = { start: d, ok: true, count: found.length };
-    } catch (err) {
-      status.error = err.message;
+    let weekOk = true;
+    let count = 0;
+    for (const w of WIDGETS) {
+      try {
+        const html = await fetchWeek(w.id, d);
+        const found = parseSessions(html, w.kind);
+        collected.push(...found);
+        count += found.length;
+      } catch (err) {
+        weekOk = false;
+        weekStatus.errored = err.message;
+      }
+      await sleep(DELAY_MS);
     }
+    const status = { start: d, ok: weekOk, count };
     weekStatus.push(status);
     if (onProgress) onProgress(i + 1, dates.length, status);
-    if (i < dates.length - 1) await sleep(DELAY_MS);
   }
 
-  // Dedupe by sessionId (defensive; weeks shouldn't overlap).
+  // Dedupe by sessionId (defensive; widgets/weeks shouldn't overlap).
   const seen = new Set();
   let classes = collected.filter((s) => {
     const key = s.sessionId || `${s.date}|${s.start}|${s.name}`;
@@ -184,7 +209,7 @@ export async function scrape({ weeks = 12, all = false, onProgress } = {}) {
     return true;
   });
 
-  if (!all) classes = classes.filter((s) => /balboa/i.test(s.name));
+  if (!all) classes = classes.filter(mentionsBalboa);
   classes.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
   return { classes, weeks: weekStatus };
@@ -201,12 +226,12 @@ async function main() {
     all,
     onProgress: (n, total, s) =>
       process.stderr.write(
-        `Fetching week ${n}/${total} (start ${s.start})… ` +
-          (s.ok ? `${s.count} classes\n` : `failed after retries: ${s.error}\n`)
+        `Week ${n}/${total} (start ${s.start})… ` +
+          (s.ok ? `${s.count} items\n` : `INCOMPLETE (a widget failed)\n`)
       ),
   });
 
-  process.stderr.write(`\nFound ${classes.length} ${all ? '' : 'Balboa '}classes across ${weeks} weeks.\n`);
+  process.stderr.write(`\nFound ${classes.length} ${all ? '' : 'Balboa '}events across ${weeks} weeks.\n`);
   console.log(JSON.stringify(classes, null, 2));
 }
 
