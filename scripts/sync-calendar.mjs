@@ -136,8 +136,10 @@ async function main() {
   );
 
   // 2. Credentials. Absent → skip quietly so a pre-setup cron doesn't error.
-  const keyRaw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  const calendarId = process.env.CALENDAR_ID;
+  // Trim to tolerate a trailing newline/space from pasting into a secrets box —
+  // an untrimmed calendar id makes the API return a confusing 404 "Not Found".
+  const keyRaw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY?.trim();
+  const calendarId = process.env.CALENDAR_ID?.trim();
   if (!keyRaw || !calendarId) {
     console.error(
       '\nGOOGLE_SERVICE_ACCOUNT_KEY and/or CALENDAR_ID not set — skipping calendar sync.\n' +
