@@ -35,7 +35,10 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
 
 <style>
   .intro {
-    margin-bottom: 1.5rem;
+    max-width: 46rem;
+    margin-bottom: 2.25rem;
+    color: #4d4540;
+    font-size: 1.1rem;
   }
 </style>
 
@@ -43,8 +46,16 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
   .calendar-wrap {
     width: 100%;
     overflow: hidden;
-    border: 2px solid #8a6a3a;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 0.45rem;
+    background: #fffdf8;
+    border: 1px solid #ddd1c1;
+    border-top: 4px solid #bd9145;
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 60px rgba(57, 38, 30, 0.1);
+  }
+
+  .calendar-wrap iframe {
+    display: block;
+    border-radius: 0.35rem;
   }
 </style>
