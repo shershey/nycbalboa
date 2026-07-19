@@ -132,6 +132,43 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         transform: scaleX(1);
       }
 
+      .nav-toggle {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 2.75rem;
+        height: 2.75rem;
+        padding: 0;
+        flex: 0 0 auto;
+        background: transparent;
+        border: 1px solid rgba(131, 43, 66, 0.2);
+        border-radius: 0.5rem;
+        cursor: pointer;
+      }
+
+      .nav-toggle span {
+        display: block;
+        width: 1.35rem;
+        height: 2px;
+        background: var(--ink);
+        border-radius: 1px;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+
+      .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
       a:focus-visible {
         outline: 3px solid rgba(131, 43, 66, 0.28);
         outline-offset: 4px;
@@ -277,41 +314,56 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
 
       @media (max-width: 760px) {
         header {
-          padding: 0.8rem 1rem 0;
+          padding: 0.8rem 1rem;
         }
 
         .header-inner {
           min-height: auto;
-          align-items: flex-start;
-          flex-direction: column;
-          gap: 0.5rem;
         }
 
         header a.site-name {
           font-size: 1.45rem;
         }
 
-        nav {
-          width: calc(100% + 2rem);
-          margin-left: -1rem;
-          padding: 0 0.55rem;
-          overflow-x: auto;
-          scrollbar-width: none;
+        .nav-toggle {
+          display: flex;
         }
 
-        nav::-webkit-scrollbar { display: none; }
+        nav {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0;
+          max-height: 0;
+          overflow: hidden;
+          visibility: hidden;
+          background: var(--paper-light);
+          border-bottom: 1px solid var(--border);
+          box-shadow: var(--shadow);
+          transition: max-height 0.25s ease;
+        }
+
+        nav[data-open="true"] {
+          max-height: 24rem;
+          visibility: visible;
+        }
 
         nav a {
-          flex: 0 0 auto;
-          min-height: 3.4rem;
-          padding: 0 0.55rem;
-          font-size: 0.73rem;
+          min-height: auto;
+          padding: 1rem 1.5rem;
+          font-size: 0.85rem;
+          justify-content: flex-start;
         }
 
         nav a::after {
-          right: 0.55rem;
-          bottom: 0.35rem;
-          left: 0.55rem;
+          display: none;
+        }
+
+        nav a[aria-current="page"] {
+          background: rgba(131, 43, 66, 0.08);
         }
 
         main {
@@ -331,7 +383,12 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
     <header>
       <div class="header-inner">
         <a href="/" class="site-name"><span class="site-mark" aria-hidden="true"></span>NYC Balboa</a>
-        <nav aria-label="Primary navigation">
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav id="primary-nav" aria-label="Primary navigation" data-open="false">
           <a href="/" aria-current={isActive('/') ? 'page' : undefined}>Home</a>
           <a href="/begin" aria-current={isActive('/begin') ? 'page' : undefined}>Begin</a>
           <a href="/socials" aria-current={isActive('/socials') ? 'page' : undefined}>Socials</a>
@@ -341,6 +398,23 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         </nav>
       </div>
     </header>
+    <script>
+      const navToggle = document.getElementById('nav-toggle');
+      const primaryNav = document.getElementById('primary-nav');
+
+      navToggle.addEventListener('click', () => {
+        const isOpen = primaryNav.getAttribute('data-open') === 'true';
+        primaryNav.setAttribute('data-open', String(!isOpen));
+        navToggle.setAttribute('aria-expanded', String(!isOpen));
+      });
+
+      primaryNav.addEventListener('click', (event) => {
+        if (event.target instanceof HTMLElement && event.target.tagName === 'A') {
+          primaryNav.setAttribute('data-open', 'false');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    </script>
     <main>
       <slot />
     </main>
