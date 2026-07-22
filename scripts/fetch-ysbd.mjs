@@ -30,6 +30,8 @@ const WIDGETS = [
 // as `callback({...json...});` — we strip the wrapper below.
 const endpoint = (widgetId) =>
   `https://widgets.mindbodyonline.com/widgets/schedules/${widgetId}/load_markup`;
+const availabilityEndpoint = (widgetId) =>
+  `https://widgets.mindbodyonline.com/widgets/schedules/${widgetId}.availability`;
 const REFERER = 'https://www.youshouldbedancing.nyc/';
 const DELAY_MS = 700; // be polite between calls
 
@@ -55,11 +57,7 @@ function unwrapJsonp(body) {
   return JSON.parse(body.slice(open + 1, close));
 }
 
-async function fetchWeek(widgetId, startDate, attempts = 4) {
-  // NOTE: params MUST be nested as options[...] — top-level start_date returns empty.
-  const url =
-    `${endpoint(widgetId)}?callback=cb&options[start_date]=${startDate}&options[location]=` +
-    `&widget_partner=object&widget_version=1&_=${startDate.replace(/-/g, '')}`;
+async function fetchJsonp(url, attempts = 4) {
   let lastErr;
   for (let a = 1; a <= attempts; a++) {
     try {
@@ -73,8 +71,7 @@ async function fetchWeek(widgetId, startDate, attempts = 4) {
         },
       });
       if (res.ok) {
-        const json = unwrapJsonp(await res.text());
-        return json.class_sessions || '';
+        return unwrapJsonp(await res.text());
       }
       lastErr = new Error(`HTTP ${res.status}`);
     } catch (err) {
@@ -83,6 +80,25 @@ async function fetchWeek(widgetId, startDate, attempts = 4) {
     if (a < attempts) await sleep(800 * a);
   }
   throw lastErr;
+}
+
+async function fetchWeek(widgetId, startDate) {
+  // NOTE: params MUST be nested as options[...] — top-level start_date returns empty.
+  const options = `callback=cb&options[start_date]=${startDate}&options[location]=`;
+  const markupUrl =
+    `${endpoint(widgetId)}?${options}` +
+    `&widget_partner=object&widget_version=1&_=${startDate.replace(/-/g, '')}`;
+  const availabilityUrl = `${availabilityEndpoint(widgetId)}?${options}`;
+
+  // Mindbody's widget applies cancellation state after rendering the markup.
+  // The HTML identifies sessions by data-bw-widget-mbo-class-id; the separate
+  // availability response provides the authoritative isCanceled flag.
+  const markup = await fetchJsonp(markupUrl);
+  const availability = await fetchJsonp(availabilityUrl);
+  return {
+    html: markup.class_sessions || '',
+    availability: availability.contents || {},
+  };
 }
 
 // strip tags → collapsed text
@@ -97,7 +113,7 @@ function text(html) {
     .trim();
 }
 
-function parseSessions(html, kind) {
+export function parseSessions(html, kind, availability = {}) {
   const sessions = [];
   // Split into per-day chunks; each has a date- class and its sessions.
   const dayChunks = html.split('<div class="bw-widget__day">').slice(1);
@@ -140,13 +156,15 @@ function parseSessions(html, kind) {
       const descMatch = block.match(/class="bw-session__description"[^>]*>([\s\S]*)/);
       const description = descMatch ? text(descMatch[1]) || null : null;
       const mboClass = (block.match(/data-bw-widget-mbo-class="([^"]+)"/) || [])[1];
+      const availabilityId =
+        (block.match(/data-bw-widget-mbo-class-id="([^"]+)"/) || [])[1];
       const sessionId = (block.match(/id="(\d+)"/) || [])[1];
       // Direct "Register" deep link to MindBody for this item on this date.
       const reg = (block.match(/class="[^"]*signup_now[^"]*"[^>]*href="([^"]+)"/) || [])[1];
       const registerUrl = reg ? reg.replace(/&amp;/g, '&') : null;
-      // Real cancellation = a modifier on the container, NOT the always-present
-      // hidden child <div class="bw-session__canceled">Cancelled</div>.
-      const cancelled = /bw-session--cancel/i.test(containerClass);
+      const cancelled =
+        availability[availabilityId]?.isCanceled === true ||
+        /bw-session--cancel/i.test(containerClass);
 
       if (!name) continue;
       sessions.push({
@@ -185,8 +203,8 @@ export async function scrape({ weeks = 12, all = false, onProgress } = {}) {
     let count = 0;
     for (const w of WIDGETS) {
       try {
-        const html = await fetchWeek(w.id, d);
-        const found = parseSessions(html, w.kind);
+        const { html, availability } = await fetchWeek(w.id, d);
+        const found = parseSessions(html, w.kind, availability);
         collected.push(...found);
         count += found.length;
       } catch (err) {
