@@ -1,6 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { Content } from '../content/homepage.md';
+import { CALENDAR_TIME_ZONE, getUpcomingEvents } from '../lib/google-calendar.js';
+
+const { events: upcomingEvents, error: calendarError } = await getUpcomingEvents(3);
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: CALENDAR_TIME_ZONE,
+  month: 'short',
+  day: 'numeric',
+});
+const weekdayFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: CALENDAR_TIME_ZONE,
+  weekday: 'short',
+});
+const accessibleDateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: CALENDAR_TIME_ZONE,
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+const timeFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: CALENDAR_TIME_ZONE,
+  hour: 'numeric',
+  minute: '2-digit',
+});
+
+const eventTime = (event) => {
+  if (event.allDay) return 'All day';
+
+  const startParts = timeFormatter.formatToParts(event.start);
+  const endParts = timeFormatter.formatToParts(event.end);
+  const startPeriod = startParts.find(({ type }) => type === 'dayPeriod')?.value;
+  const endPeriod = endParts.find(({ type }) => type === 'dayPeriod')?.value;
+  const start =
+    startPeriod === endPeriod
+      ? startParts
+          .filter(({ type }) => type !== 'dayPeriod')
+          .map(({ value }) => value)
+          .join('')
+          .trim()
+      : timeFormatter.format(event.start);
+
+  return `${start}–${timeFormatter.format(event.end)}`;
+};
 ---
 <Layout title="NYC Balboa">
   <div class="home-intro">
@@ -9,16 +53,56 @@ import { Content } from '../content/homepage.md';
       <Content />
     </div>
   </div>
-  <div class="video-wrap">
-    <iframe
-      src="https://www.youtube.com/embed/4uEbgpvxjfY?si=kjVltuKcEPk61Oqj"
-      title="Balboa beach clip"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allowfullscreen
-    ></iframe>
-  </div>
+  <section class="upcoming" aria-labelledby="upcoming-heading">
+    <div class="upcoming-header">
+      <div>
+        <p class="eyebrow">On the calendar</p>
+        <h2 id="upcoming-heading">Upcoming Events</h2>
+      </div>
+      <a class="calendar-link" href="/calendar">View full calendar <span aria-hidden="true">→</span></a>
+    </div>
+
+    {
+      upcomingEvents.length > 0 ? (
+        <ol class="agenda">
+          {upcomingEvents.map((event) => {
+            const [month, day] = dateFormatter.format(event.start).split(' ');
+
+            return (
+              <li class="agenda-item">
+                <time
+                  class="event-date"
+                  datetime={event.start.toISOString()}
+                  aria-label={accessibleDateFormatter.format(event.start)}
+                >
+                  <span class="event-month">{month}</span>
+                  <span class="event-day">{day}</span>
+                  <span class="event-weekday">{weekdayFormatter.format(event.start)}</span>
+                </time>
+                <div class="event-details">
+                  <p class="event-time">{eventTime(event)}</p>
+                  <h3>{event.title}</h3>
+                  <p class="event-location">
+                    <span aria-hidden="true">📍</span>
+                    {event.location || 'Location to be announced'}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <div class="agenda-empty">
+          <p>
+            {calendarError
+              ? 'Upcoming events are temporarily unavailable.'
+              : 'No upcoming events are currently scheduled.'}
+          </p>
+          <a href="/calendar">Visit the full calendar</a>
+        </div>
+      )
+    }
+  </section>
 </Layout>
 
 <style>
@@ -49,22 +133,154 @@ import { Content } from '../content/homepage.md';
     border-radius: 0 0.35rem 0.35rem 0;
   }
 
-  .video-wrap {
-    position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
-    margin-top: clamp(3rem, 7vw, 5rem);
-    overflow: hidden;
-    background: #211b1a;
-    border: 1px solid rgba(92, 29, 46, 0.25);
-    border-radius: 0.75rem;
-    box-shadow: 0 24px 70px rgba(57, 38, 30, 0.16);
+  .upcoming {
+    margin-top: clamp(4rem, 9vw, 7rem);
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    border-top: 1px solid var(--border);
   }
-  .video-wrap iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border-radius: inherit;
+
+  .upcoming-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .upcoming .eyebrow {
+    margin: 0 0 0.45rem;
+    color: var(--sage);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .upcoming h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .upcoming h2::before {
+    display: none;
+  }
+
+  .calendar-link {
+    flex: 0 0 auto;
+    margin-bottom: 0.3rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-decoration: none;
+  }
+
+  .agenda {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 3px solid var(--brass);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agenda-item {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: clamp(1.25rem, 4vw, 2.75rem);
+    align-items: center;
+    min-height: 9rem;
+    padding: 1.5rem clamp(1rem, 3vw, 1.75rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .agenda-item:first-child {
+    border-top: 0;
+  }
+
+  .event-date {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'month day'
+      'weekday day';
+    column-gap: 0.65rem;
+    align-items: center;
+    color: var(--burgundy-dark);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .event-month {
+    grid-area: month;
+    align-self: end;
+    font-size: 0.77rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .event-day {
+    grid-area: day;
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 3.3rem;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+
+  .event-weekday {
+    grid-area: weekday;
+    align-self: start;
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .event-details {
+    min-width: 0;
+  }
+
+  .event-time {
+    margin: 0 0 0.18rem;
+    color: var(--burgundy);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .event-details h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(1.45rem, 3vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .event-location {
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .agenda-empty {
+    padding: 2rem;
+    background: rgba(131, 43, 66, 0.045);
+    border-top: 3px solid var(--brass);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agenda-empty p {
+    margin: 0 0 0.4rem;
   }
 
   @media (max-width: 700px) {
@@ -75,6 +291,27 @@ import { Content } from '../content/homepage.md';
 
     .home-intro h1 {
       position: static;
+    }
+
+    .upcoming-header {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .calendar-link {
+      margin-bottom: 0;
+    }
+
+    .agenda-item {
+      grid-template-columns: 5.25rem 1fr;
+      gap: 1rem;
+      min-height: 8rem;
+      padding-inline: 0.65rem;
+    }
+
+    .event-day {
+      font-size: 2.8rem;
     }
   }
 </style>
