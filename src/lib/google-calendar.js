@@ -1,5 +1,3 @@
-import https from 'node:https';
-
 const CALENDAR_ID =
   'cca341fd504d87e8bdc5d22fa803d7237b5d8ad34696729ca076f27f7c36881d@group.calendar.google.com';
 const CALENDAR_TIME_ZONE = 'America/New_York';
@@ -142,43 +140,30 @@ function parseEvents(source) {
     .filter(Boolean);
 }
 
-function requestCalendarFeed(url = CALENDAR_FEED_URL, redirects = 0) {
-  return new Promise((resolve, reject) => {
-    const request = https.get(
-      url,
-      { headers: { Accept: 'text/calendar' } },
-      (response) => {
-        if (
-          response.statusCode >= 300 &&
-          response.statusCode < 400 &&
-          response.headers.location &&
-          redirects < 3
-        ) {
-          response.resume();
-          resolve(requestCalendarFeed(response.headers.location, redirects + 1));
-          return;
-        }
+async function requestCalendarFeed(url = CALENDAR_FEED_URL) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-        if (response.statusCode !== 200) {
-          response.resume();
-          reject(new Error(`Calendar returned ${response.statusCode}`));
-          return;
-        }
-
-        response.setEncoding('utf8');
-        let body = '';
-        response.on('data', (chunk) => {
-          body += chunk;
-        });
-        response.on('end', () => resolve(body));
-      }
-    );
-
-    request.setTimeout(8000, () => {
-      request.destroy(new Error('Calendar request timed out'));
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: 'text/calendar' },
+      signal: controller.signal,
+      redirect: 'follow',
     });
-    request.on('error', reject);
-  });
+
+    if (!response.ok) {
+      throw new Error(`Calendar returned ${response.status}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Calendar request timed out');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function getUpcomingEvents(limit = 3) {
