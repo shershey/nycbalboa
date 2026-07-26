@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { Content } from '../content/homepage.md';
 import { CALENDAR_TIME_ZONE, getUpcomingEvents } from '../lib/google-calendar.js';
 
-const { events: upcomingEvents, error: calendarError } = await getUpcomingEvents(3);
+const { events: upcomingEvents, error: calendarError } = await getUpcomingEvents({ days: 7 });
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   timeZone: CALENDAR_TIME_ZONE,

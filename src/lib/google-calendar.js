@@ -166,13 +166,15 @@ async function requestCalendarFeed(url = CALENDAR_FEED_URL) {
   }
 }
 
-export async function getUpcomingEvents(limit = 3) {
+export async function getUpcomingEvents({ limit, days } = {}) {
   try {
     const now = new Date();
-    const events = parseEvents(await requestCalendarFeed())
+    const cutoff = days != null ? new Date(now.getTime() + days * 86400000) : null;
+    let events = parseEvents(await requestCalendarFeed())
       .filter((event) => event.end > now)
-      .sort((a, b) => a.start - b.start)
-      .slice(0, limit);
+      .filter((event) => cutoff == null || event.start < cutoff)
+      .sort((a, b) => a.start - b.start);
+    if (limit != null) events = events.slice(0, limit);
 
     return { events, error: false };
   } catch (error) {
