@@ -1,9 +1,16 @@
 ---
+export const prerender = false;
+
 import Layout from '../layouts/Layout.astro';
 import { Content } from '../content/homepage.md';
 import { CALENDAR_TIME_ZONE, getUpcomingEvents } from '../lib/google-calendar.js';
 
 const { events: upcomingEvents, error: calendarError } = await getUpcomingEvents({ days: 7 });
+
+// Fetched live on each request (not baked in at build time) so newly added
+// calendar events appear without a redeploy. Cache briefly at the edge to keep
+// the homepage fast and avoid hammering Google on every hit.
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   timeZone: CALENDAR_TIME_ZONE,
