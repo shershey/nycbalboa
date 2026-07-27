@@ -152,7 +152,11 @@ async function requestCalendarFeed(url = CALENDAR_FEED_URL) {
     });
 
     if (!response.ok) {
-      throw new Error(`Calendar returned ${response.status}`);
+      const body = await response.text().catch(() => '');
+      throw new Error(
+        `Calendar returned HTTP ${response.status} ${response.statusText}`.trim() +
+          (body ? ` — ${body.slice(0, 200).replace(/\s+/g, ' ').trim()}` : '')
+      );
     }
 
     return await response.text();
@@ -176,10 +180,13 @@ export async function getUpcomingEvents({ limit, days } = {}) {
       .sort((a, b) => a.start - b.start);
     if (limit != null) events = events.slice(0, limit);
 
-    return { events, error: false };
+    return { events, error: false, errorMessage: null };
   } catch (error) {
-    console.warn(`Unable to load upcoming Google Calendar events: ${error.message}`);
-    return { events: [], error: true };
+    console.warn(
+      `[google-calendar] Unable to load upcoming events from ${CALENDAR_FEED_URL}\n` +
+        `  reason: ${error.name}: ${error.message}`
+    );
+    return { events: [], error: true, errorMessage: `${error.name}: ${error.message}` };
   }
 }
 
