@@ -50,7 +50,7 @@
     </dl>
     <p class="alternate-note">Weekday evenings not your thing? There’s also a monthly Sunday daytime practice—check the Calendar for the next date.</p>
     <div class="path-actions">
-      <a class="path-link" href="https://thursdaypractice.nycbalboa.com" target="_blank" rel="noopener">Visit Thursday Practice <span aria-hidden="true">→</span></a>
+      <a class="path-link" href="/weekly-practice">Visit Weekly Practice <span aria-hidden="true">→</span></a>
       <a class="path-link path-link-secondary" href="/calendar">See the Calendar <span aria-hidden="true">→</span></a>
     </div>
   </article>
