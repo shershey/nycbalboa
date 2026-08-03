@@ -1,0 +1,28 @@
+name: Practice sync — dry-run preview
+
+# Manual, READ-ONLY preview of the weekly practice sync (sync-thursday.mjs).
+# Always a dry run: it never passes --apply, so it never writes to the calendar
+# — regardless of the YSBD_SYNC_APPLY variable that makes the daily job live.
+# Use it to see the planned create/update/delete before the real job runs.
+#
+# The YSBD class sync is intentionally NOT run here — this previews only the
+# practice sheet reconciliation.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install script deps
+        run: npm install --prefix scripts
+      - name: Preview practice sync (dry-run, never writes)
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          CALENDAR_ID: ${{ secrets.CALENDAR_ID }}
+        run: node scripts/sync-thursday.mjs
