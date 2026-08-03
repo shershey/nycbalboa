@@ -2,7 +2,7 @@
 
 **Where:** New Yorker Hotel, 481 8th Ave (34th and 8th Ave). [This video](https://www.youtube.com/shorts/klBgAfA0-Z4) describes how to get into the studio. The studio is in the basement of the hotel directly to the left of the fitness studio.
 
-**When:** Thursdays 7:30–9:30pm
+**When:** Thursdays 7:30–9:30pm (Moving to Wednesdays starting September 2nd, 2026)
 
 **Cost:** $5–$10 (whatever you want). Feel free to look around the room and divide the cost of the space by the number of people and pay that. You are welcome to pay more if you feel like it but no pressure.
 
