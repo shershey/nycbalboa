@@ -4,7 +4,7 @@ This page lists the regularly recurring events. Visit the [calendar](/calendar) 
 
 ## Weekly
 
-- [Thursday Practice](https://thursdaypractice.nycbalboa.com)
+- [Weekly Practice](/weekly-practice)
   - Weekly drop-in Balboa practice session for all levels
   - 📍 New Yorker Hotel
   - Thursdays, 7:30–9:30pm
