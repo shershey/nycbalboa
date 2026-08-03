@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────
-// Thursday Night Practice → Google Calendar sync.
+// Weekly Balboa Practice → Google Calendar sync.
+// (Historically Thursday nights; moved to Wednesdays in Sept 2026. The day is
+//  whatever the sheet lists — this sync reads dates, not a fixed weekday.)
 //
 // Reads the organizer-maintained Google Sheet (source of truth) and writes one
 // calendar event per upcoming practice date. Hosts / Time / More-info go in the
@@ -27,8 +29,8 @@ import crypto from 'node:crypto';
 
 const SHEET_ID = '1457_9_HazwveO4VX_xu6pF9KRnpHneXE3q-nsNK3dug'; // shared with the service account (not secret)
 const TIMEZONE = 'America/New_York';
-const SOURCE_TAG = 'thursday-practice';
-const SUMMARY = 'Thursday Balboa Practice';
+const SOURCE_TAG = 'thursday-practice'; // stable id/tag namespace — kept as-is so the moved-day events reconcile against existing ones instead of churning
+const SUMMARY = 'Balboa Practice'; // day-neutral: correct whether a row is a Thursday or a Wednesday (the practice moved to Wednesdays in Sept)
 const DEFAULT_TIME = { start: '19:30', end: '21:30' }; // fallback if a row's Time is blank/unparseable
 
 const APPLY = process.argv.includes('--apply');
@@ -105,7 +107,10 @@ function parseTimeRange(s) {
 const eventId = (date) => sha(`thursday|${date}`);
 
 function contentHash(p) {
-  return sha([p.hosts, p.time, p.location, p.moreInfo, p.start, p.end].join('|')).slice(0, 16);
+  // Include SUMMARY so a title change (e.g. the Thursday→Wednesday rename) is
+  // detected as an update and propagates to events that already exist, not just
+  // to newly-created ones.
+  return sha([SUMMARY, p.hosts, p.time, p.location, p.moreInfo, p.start, p.end].join('|')).slice(0, 16);
 }
 
 function buildEvent(p) {
@@ -133,7 +138,7 @@ function buildEvent(p) {
 const eventLocalDate = (s) => (s?.dateTime || s?.date || '').slice(0, 10);
 function sameDayMatch(ours, hand) {
   if (eventLocalDate(ours.start) !== eventLocalDate(hand.start)) return false;
-  return /thursday|practice/i.test(hand.summary || '');
+  return /thursday|wednesday|practice/i.test(hand.summary || '');
 }
 
 // ── main ────────────────────────────────────────────────────────────────────
