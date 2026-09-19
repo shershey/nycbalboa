@@ -283,7 +283,20 @@ async function main() {
   }
 
   for (const ev of toInsert) {
-    await calendar.events.insert({ calendarId, requestBody: ev });
+    try {
+      await calendar.events.insert({ calendarId, requestBody: ev });
+    } catch (err) {
+      // Deleting an event in Google Calendar doesn't free its id — a cancelled
+      // "tombstone" keeps it reserved. Our deterministic ids mean a class that
+      // was previously synced-then-deleted (or cancelled) and later reappears
+      // gets planned as a create, and insert then 409s ("identifier already
+      // exists"). The tombstone is filtered out of `existing` (status ===
+      // 'cancelled'), so we can't see it up front. Recover by updating the id
+      // in place, which restores it. Still only ever touches ysbd-sync ids.
+      if (err.code === 409) {
+        await calendar.events.update({ calendarId, eventId: ev.id, requestBody: ev });
+      } else throw err;
+    }
   }
   for (const ev of toUpdate) {
     await calendar.events.update({ calendarId, eventId: ev.id, requestBody: ev });

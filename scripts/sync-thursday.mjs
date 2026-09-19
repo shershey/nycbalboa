@@ -299,7 +299,20 @@ async function main() {
     console.error('\nDry run — no changes written. Re-run with --apply to commit.');
     return;
   }
-  for (const ev of toInsert) await calendar.events.insert({ calendarId, requestBody: ev });
+  for (const ev of toInsert) {
+    // Deleting an event doesn't free its id in Google Calendar — a cancelled
+    // "tombstone" keeps it reserved. With deterministic ids, a practice that was
+    // synced-then-deleted and later reappears is planned as a create, and insert
+    // then 409s ("identifier already exists"). Recover by updating in place,
+    // which restores the tombstoned event. Still only touches thursday-practice ids.
+    try {
+      await calendar.events.insert({ calendarId, requestBody: ev });
+    } catch (err) {
+      if (err.code === 409) {
+        await calendar.events.update({ calendarId, eventId: ev.id, requestBody: ev });
+      } else throw err;
+    }
+  }
   for (const ev of toUpdate) await calendar.events.update({ calendarId, eventId: ev.id, requestBody: ev });
   for (const ev of toDelete) await calendar.events.delete({ calendarId, eventId: ev.id });
   console.error(`\nDone. Created ${toInsert.length}, updated ${toUpdate.length}, deleted ${toDelete.length}.`);
