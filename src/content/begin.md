@@ -37,7 +37,7 @@
     <div class="path-number" aria-hidden="true">04</div>
     <p class="path-label">Practice what you know</p>
     <h2>Come to a Practice Session</h2>
-    <p>Already know a few basics or fancy moves? Thursday Practice is one of the friendliest places to improve.</p>
+    <p>Already know a few basics or fancy moves? Wednesday Practice is one of the friendliest places to improve.</p>
     <dl class="practice-times">
       <div>
         <dt>7:30–8:30</dt>
