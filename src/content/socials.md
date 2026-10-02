@@ -6,8 +6,8 @@ This page lists the regularly recurring events. Visit the [calendar](/calendar) 
 
 - [Weekly Practice](/weekly-practice)
   - Weekly drop-in Balboa practice session for all levels
-  - 📍 New Yorker Hotel
-  - Thursdays, 7:30–9:30pm (Moving to Wednesdays starting September 2nd, 2026).
+  - 📍 New Yorker Hotel ([video: how to get into the space](https://www.youtube.com/shorts/klBgAfA0-Z4))
+  - Wednesdays, 7:30–9:30pm
 
 ## Monthly
 
