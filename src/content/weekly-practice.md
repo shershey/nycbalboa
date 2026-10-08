@@ -34,8 +34,6 @@ Some suggestions for how to use the space:
 - Feel free to use the space to teach or take a private lesson.
 - While Jen & Shawn (or other hosts) are providing feedback, it could be nice to offer to practice with others who are less experienced to help build the community.
 
-[Frim Fram](https://www.youshouldbedancing.nyc/events/hw5abf367mtytsf-54sye-sphzm-lye7p-gwb4g) takes place somewhat close by starting around 9pm, so it would be nice to occasionally head there as a group after practice — or alternatively get food or drinks.
-
 ---
 
 ## Safe Spaces & Feedback
