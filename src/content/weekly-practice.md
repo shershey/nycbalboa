@@ -34,6 +34,8 @@ Some suggestions for how to use the space:
 - Feel free to use the space to teach or take a private lesson.
 - While Jen & Shawn (or other hosts) are providing feedback, it could be nice to offer to practice with others who are less experienced to help build the community.
 
+On Wednesdays, the Hot Toddies Jazz Band plays a weekly swing night called [Gotham Jazz](https://www.prohibitionproductions.com/gothamjazz) at Somewhere Nowhere (112 W 25th St), about a 15-minute walk from practice. A swing DJ starts at 5pm and the band plays from about 7:15 until 11pm, so you can dance there before practice or head down as a group afterward. We might also go out for food or drinks after practice instead.
+
 ---
 
 ## Safe Spaces & Feedback
