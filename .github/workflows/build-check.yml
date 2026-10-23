@@ -1,0 +1,21 @@
+name: Build check
+
+# Runs on every pull request so nothing that fails to build can be merged
+# (merging to main publishes the site). Make it a required status check
+# in the branch protection rule for main.
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
