@@ -1,16 +1,3 @@
-# Learn
-
-New to Balboa? Check out the [Begin](/begin) page for tips on how to get started.
-
-## Weekly
-
-- [You Should Be Dancing](https://www.youshouldbedancing.nyc/swing-dance-program) — Balboa classes and social dancing
-- [Weekly Practice](/weekly-practice) — Weekly drop-in Balboa practice session
-
-## Big Events
-
-- [Bal Week](https://www.balweek.com/) — Annual Balboa exchange event
-
 ## Private Lessons
 
 <article class="instructor-card">
