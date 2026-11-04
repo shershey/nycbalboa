@@ -191,7 +191,7 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         letter-spacing: 0.18em;
       }
 
-      h1 {
+      main :global(h1) {
         max-width: 14ch;
         margin: 0 0 2rem;
         color: var(--ink);
@@ -202,7 +202,7 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         line-height: 0.98;
       }
 
-      h2 {
+      main :global(h2) {
         position: relative;
         margin: 3.5rem 0 1rem;
         padding-top: 1.2rem;
@@ -215,7 +215,7 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         border-top: 1px solid var(--border);
       }
 
-      h2::before {
+      main :global(h2)::before {
         content: '';
         position: absolute;
         top: -1px;
@@ -223,6 +223,16 @@ const isActive = (href) => href === '/' ? currentPath === '/' : currentPath.star
         width: 4rem;
         height: 3px;
         background: var(--brass);
+      }
+
+      main :global(h3) {
+        margin: 0;
+        color: var(--ink);
+        font-family: 'Newsreader', Georgia, serif;
+        font-size: clamp(1.45rem, 3vw, 1.9rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
       }
 
       a {
