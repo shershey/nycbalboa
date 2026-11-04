@@ -3,10 +3,40 @@ import Layout from '../layouts/Layout.astro';
 import { Content } from '../content/learn.md';
 ---
 <Layout title="Learn — NYC Balboa">
+  <h1>Learn</h1>
+  <p>New to Balboa? Check out the <a href="/begin">Begin</a> page for tips on how to get started.</p>
+
+  <div class="learn-highlights">
+    <div class="learn-highlights__links">
+      <section>
+        <h2>Weekly</h2>
+        <ul>
+          <li><a href="https://www.youshouldbedancing.nyc/swing-dance-program">You Should Be Dancing</a> — Balboa classes and social dancing</li>
+          <li><a href="/weekly-practice">Weekly Practice</a> — Weekly drop-in Balboa practice session</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Big Events</h2>
+        <ul>
+          <li><a href="https://www.balweek.com/">Bal Week</a> — Annual Balboa exchange event</li>
+        </ul>
+      </section>
+    </div>
+
+  </div>
+
   <Content />
 </Layout>
 
 <style is:global>
+  .learn-highlights {
+    margin: 1.5rem 0 2rem;
+  }
+
+  .learn-highlights__links > section + section {
+    margin-top: 1.5rem;
+  }
+
   .instructor-card {
     display: grid;
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
