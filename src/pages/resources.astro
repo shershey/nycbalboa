@@ -3,5 +3,104 @@ import Layout from '../layouts/Layout.astro';
 import { Content } from '../content/resources.md';
 ---
 <Layout title="Resources — NYC Balboa">
-  <Content />
+  <div class="resources-layout">
+    <Content />
+  </div>
 </Layout>
+
+<style>
+  .resources-layout :global(h1) {
+    animation: arrive 550ms ease-out both;
+  }
+
+  .resources-layout :global(h2) {
+    animation: arrive 550ms ease-out both;
+  }
+
+  .resources-layout :global(h2:nth-of-type(2)) { animation-delay: 70ms; }
+  .resources-layout :global(h2:nth-of-type(3)) { animation-delay: 130ms; }
+  .resources-layout :global(h2:nth-of-type(4)) { animation-delay: 190ms; }
+
+  .resources-layout :global(h2:first-of-type) {
+    margin-top: 0;
+  }
+
+  .resources-layout :global(p:first-of-type) {
+    width: fit-content;
+    max-width: 100%;
+    padding: 1.1rem 1.35rem;
+    border: 1px solid rgba(189, 145, 69, 0.45);
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, #fffdf8, #f4e8d1);
+    box-shadow: 0 12px 28px rgba(57, 38, 30, 0.09);
+    animation: arrive 650ms 80ms ease-out both;
+  }
+
+  .resources-layout :global(table) {
+    width: 100%;
+    margin: 1.25rem 0 0;
+    border: 1px solid var(--border);
+    border-spacing: 0;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: var(--paper-light);
+    box-shadow: 0 12px 28px rgba(57, 38, 30, 0.07);
+    animation: arrive 650ms 130ms ease-out both;
+  }
+
+  .resources-layout :global(th) {
+    padding: 0.75rem 1rem;
+    background: var(--burgundy-dark);
+    color: #fffdf8;
+    font-size: 0.77rem;
+    letter-spacing: 0.09em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .resources-layout :global(td) {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .resources-layout :global(a) {
+    color: var(--burgundy);
+    font-weight: 600;
+    text-decoration-color: rgba(131, 43, 66, 0.35);
+  }
+
+  .resources-layout :global(a:hover) {
+    color: var(--burgundy-dark);
+    text-decoration-color: currentColor;
+  }
+
+  .resources-layout :global(tbody tr) {
+    transition: background-color 180ms ease;
+  }
+
+  .resources-layout :global(tbody tr:hover) {
+    background: #f8f1e5;
+  }
+
+  @keyframes arrive {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .resources-layout :global(th),
+    .resources-layout :global(td) {
+      padding: 0.65rem 0.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .resources-layout :global(h1),
+    .resources-layout :global(h2),
+    .resources-layout :global(p:first-of-type),
+    .resources-layout :global(table) {
+      animation: none;
+    }
+  }
+</style>
