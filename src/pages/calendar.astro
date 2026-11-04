@@ -19,6 +19,41 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
       scrolling="no"
     ></iframe>
   </div>
+
+  <section class="community-board" aria-labelledby="community-heading">
+    <div class="community-board__header">
+      <p class="community-kicker">From Our Community</p>
+      <h2 id="community-heading">Community Bulletin Board</h2>
+      <p class="community-intro">A few snapshots of NYC dancers gathering, traveling, and sharing Balboa.</p>
+    </div>
+
+    <div class="community-grid">
+      <figure class="community-card">
+        <img src="/images/community/california-balboa-classic-2017.webp" alt="NYC Balboa dancers pose together at the California Balboa Classic in 2017." width="960" height="720" loading="lazy" decoding="async" />
+        <figcaption><span>California Balboa Classic</span><time datetime="2017">2017</time></figcaption>
+      </figure>
+      <figure class="community-card">
+        <img src="/images/community/california-balboa-classic-2018.webp" alt="NYC Balboa dancers pose together beneath the California Balboa Classic sign in 2018." width="1600" height="1475" loading="lazy" decoding="async" />
+        <figcaption><span>California Balboa Classic</span><time datetime="2018">2018</time></figcaption>
+      </figure>
+      <figure class="community-card">
+        <img src="/images/community/california-balboa-classic-2019.webp" alt="A large group of NYC Balboa dancers at the California Balboa Classic in 2019." width="1600" height="1066" loading="lazy" decoding="async" />
+        <figcaption><span>California Balboa Classic</span><time datetime="2019">2019</time></figcaption>
+      </figure>
+      <figure class="community-card">
+        <img src="/images/community/valencia-balboa-weekend-2023.webp" alt="Four NYC Balboa friends take a selfie at Valencia Balboa Weekend in 2023." width="720" height="540" loading="lazy" decoding="async" />
+        <figcaption><span>Valencia Balboa Weekend</span><time datetime="2023">2023</time></figcaption>
+      </figure>
+      <figure class="community-card">
+        <img src="/images/community/california-balboa-classic-2024.webp" alt="NYC Balboa dancers pose at the California Balboa Classic’s 10th anniversary in 2024." width="1228" height="877" loading="lazy" decoding="async" />
+        <figcaption><span>California Balboa Classic</span><time datetime="2024">2024</time><small>Photo: Jeff Lin-Leyco</small></figcaption>
+      </figure>
+      <figure class="community-card">
+        <img src="/images/community/stardust-2025.webp" alt="NYC Balboa dancers celebrate together at Stardust in 2025." width="1600" height="900" loading="lazy" decoding="async" />
+        <figcaption><span>Stardust</span><time datetime="2025">2025</time></figcaption>
+      </figure>
+    </div>
+  </section>
 </Layout>
 
 <script define:vars={{ BASE_URL }}>
@@ -57,5 +92,136 @@ const BASE_URL = 'https://calendar.google.com/calendar/embed?src=cca341fd504d87e
   .calendar-wrap iframe {
     display: block;
     border-radius: 0.35rem;
+  }
+
+  .community-board {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .community-board__header {
+    max-width: 46rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .community-kicker {
+    margin: 0 0 0.35rem;
+    color: var(--sage);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .community-board h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--burgundy-dark);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(1.7rem, 4vw, 2.35rem);
+  }
+
+  .community-board h2::before {
+    display: none;
+  }
+
+  .community-intro {
+    margin: 0.55rem 0 0;
+    color: var(--muted);
+  }
+
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .community-card {
+    position: relative;
+    margin: 0;
+    padding: 0.8rem 0.7rem 0.75rem;
+    background: var(--paper-light);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--brass);
+    border-radius: 0.35rem;
+    box-shadow: 0 12px 28px rgba(57, 38, 30, 0.08);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .community-card::before {
+    position: absolute;
+    top: 0.3rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--burgundy);
+    box-shadow: 0 1px 3px rgba(33, 27, 26, 0.25);
+    content: '';
+    transform: translateX(-50%);
+  }
+
+  .community-card:hover {
+    box-shadow: 0 18px 36px rgba(57, 38, 30, 0.13);
+    transform: translateY(-3px);
+  }
+
+  .community-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.15rem;
+  }
+
+  .community-card figcaption {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    margin-top: 0.55rem;
+    color: var(--burgundy-dark);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .community-card time {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .community-card figcaption small {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 0.9em;
+    font-weight: 400;
+  }
+
+  @media (max-width: 900px) {
+    .community-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 380px) {
+    .community-grid {
+      gap: 0.75rem;
+    }
+
+    .community-card {
+      padding-inline: 0.5rem;
+    }
+
+    .community-card figcaption {
+      font-size: 0.74rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .community-card {
+      transition: none;
+    }
   }
 </style>
