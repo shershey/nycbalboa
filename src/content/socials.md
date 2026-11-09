@@ -8,6 +8,10 @@ This page lists the regularly recurring events. Visit the [calendar](/calendar) 
   - Weekly drop-in Balboa practice session for all levels
   - 📍 New Yorker Hotel ([video: how to get into the space](https://www.youtube.com/shorts/klBgAfA0-Z4))
   - Wednesdays, 7:30–9:30pm
+- Bal Crash!
+  - We love to gather and "crash" events with live music and space to dance!
+  - Check the calendar for upcoming events!
+  - Note: Always be courteous of other patrons and come prepared to tip the band and purchase a drink. We would love to keep supporting venues and artists in this special city!
 
 ## Monthly
 
@@ -15,3 +19,6 @@ This page lists the regularly recurring events. Visit the [calendar](/calendar) 
   - Social dance featuring live music!
   - 📍 You Should Be Dancing Studios
   - Last Tuesday of the month, 9:30pm–Midnight
+- Monthly Daytime Practice
+  - Open practice session on the weekend if you can't make the Wednesday timing.
+  - Check the calendar for the next sessions!
