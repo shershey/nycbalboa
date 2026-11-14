@@ -19,6 +19,10 @@ This page lists the regularly recurring events. Visit the [calendar](/calendar) 
   - Social dance featuring live music!
   - 📍 You Should Be Dancing Studios
   - Last Tuesday of the month, 9:30pm–Midnight
+- Lolly Balboa Social
+  - Cozy Balboa social with a drop-in beginner lesson!
+  - 📍 Studios 353, 353 W 48th St (2nd floor)
+  - First or Second Friday of the month, 7–10pm (drop-in 7–7:30pm). Check the calendar for the next date!
 - Monthly Daytime Practice
   - Open practice session on the weekend if you can't make the Wednesday timing.
   - Check the calendar for the next sessions!
